@@ -17,11 +17,7 @@ sms_manager = SMSDataManager()
 last_loop_timestamp = datetime.now() - timedelta(seconds=MESSAGE_FETCH_INTERVAL + 1)
 while True:
     # Filter all messages that only new messages are shown.
-    received_messages: list[dict] = [
-        message
-        for message in sms_manager.get_messages()
-        if datetime.strptime(message.get("receivedAt") > last_loop_timestamp, "%Y-%m-%dT%H:%M:%S.%f%z")
-    ]
+    received_messages: list[dict] = sms_manager.get_filtered_messages(last_loop_timestamp)
 
     # update the last loop
     last_loop_timestamp = datetime.now() - timedelta(seconds=1)

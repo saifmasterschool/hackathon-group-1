@@ -6,8 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from config import SQLite_file
 from database.extension import Base
-from schemas.message_schema import Message
-from utils.dates import convert_timestamp
+from schemas import Message, User
 
 
 class SQLiteDataManger:
@@ -62,6 +61,34 @@ class SQLiteDataManger:
             )
 
             session.add(message)
+            session.commit()
+        finally:
+            session.close()
+
+    def add_user(self, phone_number: int, channels: list[str]):
+        session = self.get_session()
+        try:
+            user = User(
+                phone_number=phone_number,
+                channels=channels
+            )
+            session.add(user)
+            session.commit()
+        finally:
+            session.close()
+
+    def get_user_by_phone_number(self, phone_number: int):
+        session = self.get_session()
+        try:
+            return session.query(User).filter(User.phone_number == phone_number).one()
+        finally:
+            session.close()
+
+    def update_user_channels(self, phone_number: int, channels: list[str]):
+        session = self.get_session()
+        try:
+            user = session.query(User).filter(User.phone_number == phone_number).one()
+            user.channels = channels
             session.commit()
         finally:
             session.close()

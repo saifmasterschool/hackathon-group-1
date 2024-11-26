@@ -3,7 +3,7 @@ import requests
 from config import MASTERSCHOOL_API, MASTERSCHOOL_API_TEAMNAME
 
 
-class DataManager:
+class SMSDataManager:
     @staticmethod
     def create_team(team_name):
         return requests.post(f'{MASTERSCHOOL_API}/team/addNewTeam', json={

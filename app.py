@@ -14,13 +14,12 @@ sms_manager = SMSDataManager()
 
 # Receive messages in a timed-interval
 # Basic usage example
-last_loop_timestamp = datetime.now() - timedelta(seconds=MESSAGE_FETCH_INTERVAL + 1)
 while True:
-    # Filter all messages that only new messages are shown.
-    received_messages: list[dict] = sms_manager.get_filtered_messages(last_loop_timestamp)
+    # Get the timestamp of the last message
+    last_message_time_stamp = sqlite_manager.get_last_message_timestamp()
 
-    # update the last loop
-    last_loop_timestamp = datetime.now() - timedelta(seconds=1)
+    # Filter all messages that only new messages are shown.
+    received_messages: list[dict] = sms_manager.get_filtered_messages(last_message_time_stamp)
 
     print(received_messages)
 

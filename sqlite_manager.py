@@ -1,9 +1,12 @@
+from datetime import datetime, timedelta
+from typing import Type
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from config import SQLite_file
-from schemas.message_schema import Message
 from database.extension import Base
+from schemas.message_schema import Message
 
 
 class SQLiteDataManger:
@@ -13,10 +16,10 @@ class SQLiteDataManger:
         Base.metadata.create_all(self.engine)
 
     def get_session(self):
-        return self.session
+        return self.session()
 
     # TODO: add methods for users, routines and jokes
-    def get_messages(self) -> list[Message]:
+    def get_messages(self) -> list[Type[Message]]:
         session = self.get_session()
         try:
             messages = session.query(Message).all()
@@ -34,6 +37,15 @@ class SQLiteDataManger:
             return exists
         finally:
             session.close()
+
+    def get_last_message_timestamp(self):
+        session = self.get_session()
+        last_message = session.query(Message).order_by(Message.created_at.desc()).first()
+
+        if last_message:
+            return last_message["created_at"]
+        else:
+            return datetime.now() - timedelta(days=5)
 
     def add_message_to_log(self, received_message):
         session = self.get_session()

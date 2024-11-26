@@ -40,7 +40,10 @@ class SQLiteDataManger:
 
     def get_last_message_timestamp(self):
         session = self.get_session()
-        last_message = session.query(Message).order_by(Message.created_at.desc()).first()
+        try:
+            last_message = session.query(Message).order_by(Message.created_at.desc()).first()
+        finally:
+            session.close()
 
         if last_message:
             return last_message["created_at"]

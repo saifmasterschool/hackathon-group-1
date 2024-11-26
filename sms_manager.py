@@ -29,7 +29,7 @@ class SMSDataManager:
         return requests.get(f'{MASTERSCHOOL_API}/team/getMessages/{team_name}').json()
 
     @staticmethod
-    def send_sms(phone_number, message, sender):
+    def send_sms(phone_number, message, sender=""):
         return requests.post(f'{MASTERSCHOOL_API}/sms/send', json={
             "phoneNumber": phone_number,
             "message": message,

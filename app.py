@@ -1,11 +1,10 @@
 import time
+from datetime import datetime, timedelta
 
 from config import MESSAGE_FETCH_INTERVAL
+from external_api.jokes import get_joke_from_api
 from sms_manager import SMSDataManager
 from sqlite_manager import SQLiteDataManger
-from schemas.message_schema import Message
-
-from external_api.jokes import get_joke_from_api
 
 # Create Database-Manager
 sqlite_manager = SQLiteDataManger()
@@ -15,8 +14,18 @@ sms_manager = SMSDataManager()
 
 # Receive messages in a timed-interval
 # Basic usage example
+last_loop_timestamp = datetime.now() - timedelta(seconds=MESSAGE_FETCH_INTERVAL + 1)
 while True:
-    received_messages: list[dict] = sms_manager.get_messages()
+    # Filter all messages that only new messages are shown.
+    received_messages: list[dict] = [
+        message
+        for message in sms_manager.get_messages()
+        if datetime.strptime(message.get("receivedAt") > last_loop_timestamp, "%Y-%m-%dT%H:%M:%S.%f%z")
+    ]
+
+    # update the last loop
+    last_loop_timestamp = datetime.now() - timedelta(seconds=1)
+
     print(received_messages)
 
     # loop through all messages
@@ -34,7 +43,7 @@ while True:
         # ------------ Add message handlers here ---------- #
         # Handle the message based on the content
         if "joke" in message["text"].lower():
-            sms_manager.send_sms(sender_number, get_joke_from_api(), "DailyMoodBoost")
+            sms_manager.send_sms(sender_number, get_joke_from_api(), "Daily Joke from DailyMoodBoost")
 
         # ------------------------------------------------ #
 

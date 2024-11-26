@@ -18,7 +18,8 @@ while True:
     received_messages = sms_manager.get_messages()
     print(received_messages)
 
-    for [number, data] in received_messages.items:
+    # Error because of wrong documentation
+    for [number, data] in received_messages.items():
         message = data["text"]
 
         if "joke" in message.lower():

@@ -1,5 +1,4 @@
 import time
-from datetime import datetime, timedelta
 
 from config import MESSAGE_FETCH_INTERVAL
 from external_api.jokes import get_joke_from_api

@@ -2,8 +2,7 @@ import time
 
 from config import MESSAGE_FETCH_INTERVAL
 from external_api.jokes import get_joke_from_api
-from sms_manager import SMSDataManager
-from sqlite_manager import SQLiteDataManger
+from data_managers import SMSDataManager, SQLiteDataManger
 
 # Create Database-Manager
 sqlite_manager = SQLiteDataManger()

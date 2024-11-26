@@ -1,11 +1,10 @@
-from database.extension import Base
+from sqlalchemy import Column, Integer, String, DateTime, func
 
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, func
-from sqlalchemy.orm import relationship
+from database.extension import Base
 
 
 class Message(Base):
-    __tablename__ = "jokes"
+    __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     sender = Column(Integer, nullable=False)

@@ -14,10 +14,10 @@ sms_manager = SMSDataManager()
 # Basic usage example
 while True:
     # Get the timestamp of the last message
-    last_message_time_stamp = sqlite_manager.get_last_message_timestamp()
+    last_message_timestamp = sqlite_manager.get_last_message_timestamp()
 
     # Filter all messages that only new messages are shown.
-    received_messages: list[dict] = sms_manager.get_filtered_messages(last_message_time_stamp)
+    received_messages: list[dict] = sms_manager.get_filtered_messages(last_message_timestamp)
 
     print(received_messages)
 

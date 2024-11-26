@@ -1,4 +1,3 @@
-import requests
 from sms_manager import DataManager
 
 sms_manager = DataManager

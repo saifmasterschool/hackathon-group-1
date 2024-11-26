@@ -1,10 +1,10 @@
-from sqlite_manager import Base
+from database.extension import Base
 
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
 
 
-class Jokes(Base):
+class Message(Base):
     __tablename__ = "jokes"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

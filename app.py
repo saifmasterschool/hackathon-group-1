@@ -3,6 +3,7 @@ import time
 from config import MESSAGE_FETCH_INTERVAL
 from sms_manager import SMSDataManager
 from sqlite_manager import SQLiteDataManger
+from schemas.message_schema import Message
 
 from external_api.jokes import get_joke_from_api
 
@@ -16,7 +17,6 @@ sms_manager = SMSDataManager()
 # Basic usage example
 while True:
     received_messages: list[dict] = sms_manager.get_messages()
-    handled_messages: list[Message]
     print(received_messages)
 
     # loop through all messages
@@ -27,10 +27,18 @@ while True:
             print("Sender number is not convertable to number")
             continue
 
+        # Check if message is already handled
+        if sqlite_manager.check_if_message_handled({**message, "sender": sender_number}):
+            continue
+
+        # ------------ Add message handlers here ---------- #
         # Handle the message based on the content
         if "joke" in message["text"].lower():
             sms_manager.send_sms(sender_number, get_joke_from_api(), "DailyMoodBoost")
 
-        # TODO: Add the message to some kind of log (preferably sqlite) to prevent it from handling multiple times.
+        # ------------------------------------------------ #
+
+        # Add message sqlite to mark as handled
+        sqlite_manager.add_message_to_log({**received_messages, "sender": sender_number})
 
     time.sleep(MESSAGE_FETCH_INTERVAL)

@@ -1,4 +1,4 @@
-from sqlite_manager import Base
+from database.extension import Base
 
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship

@@ -1,3 +1,9 @@
+"""
+Contents of this file should be saved in a ".env" file, but
+sharing envs can be pretty cumbersome, especially in a public repository.
+So for now, everything's saved in a config file, probably updated before finishing.
+"""
+
 from os import path
 
 MASTERSCHOOL_API = "http://hackathons.masterschool.com:3030"

@@ -21,14 +21,15 @@ def start_message_loop():
         # Filter all messages that only new messages are shown.
         received_messages: list[dict] = sms_manager.get_filtered_messages(last_message_timestamp)
 
-        print(received_messages)
-
         # loop through all messages
         for message in received_messages:
             try:
                 sender_number = int(message["sender"])
             except ValueError:
                 print("Sender number is not convertable to number")
+                continue
+            except KeyError:
+                print("Sender not in message")
                 continue
 
             # Check if message is already handled
@@ -43,7 +44,7 @@ def start_message_loop():
             # ------------------------------------------------ #
 
             # Add message sqlite to mark as handled
-            sqlite_manager.add_message_to_log({**received_messages, "sender": sender_number})
+            sqlite_manager.add_message_to_log({**message, "sender": sender_number})
 
         time.sleep(MESSAGE_FETCH_INTERVAL)
 

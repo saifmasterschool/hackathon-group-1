@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from config import SQLite_file
 from database.extension import Base
 from schemas.message_schema import Message
+from utils.dates import convert_timestamp
 
 
 class SQLiteDataManger:
@@ -46,14 +47,16 @@ class SQLiteDataManger:
             session.close()
 
         if last_message:
-            return last_message["created_at"]
+            return last_message.created_at
         else:
-            return datetime.now() - timedelta(days=5)
+            date = datetime.now() - timedelta(days=5)
+            return date
 
     def add_message_to_log(self, received_message):
         session = self.get_session()
         try:
             message = Message(
+                message=received_message["text"],
                 sender=received_message["sender"],
                 receivedAt=received_message["receivedAt"]
             )

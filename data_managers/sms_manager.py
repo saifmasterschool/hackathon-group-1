@@ -1,8 +1,7 @@
-from datetime import datetime
-
 import requests
 
 from config import MASTERSCHOOL_API, MASTERSCHOOL_API_TEAMNAME
+from utils.dates import convert_timestamp
 
 
 class SMSDataManager:
@@ -31,11 +30,19 @@ class SMSDataManager:
 
     def get_filtered_messages(self, timestamp, team_name=MASTERSCHOOL_API_TEAMNAME):
         messages_from_api = self._requests.get(f'{MASTERSCHOOL_API}/team/getMessages/{team_name}').json()
-        return [
-            message
-            for message in messages_from_api
-            if datetime.strptime(message.get("receivedAt"), __format="%Y-%m-%dT%H:%M:%S.%f%z") > timestamp
+        res_messages = [
+            {
+                **message,
+                "sender": int(sender),
+                "receivedAt": convert_timestamp(message["receivedAt"])
+            }
+            for message_dict in messages_from_api
+            for sender, messages in message_dict.items()
+            for message in messages
+            if convert_timestamp(message["receivedAt"]) > timestamp
         ]
+
+        return res_messages
 
     def send_sms(self, phone_number, message, sender=""):
         return self._requests.post(f'{MASTERSCHOOL_API}/sms/send', json={

@@ -18,7 +18,7 @@ while True:
     received_messages = sms_manager.get_messages()
     print(received_messages)
 
-    # Error because of wrong documentation
+    # Error because of wrong masterschool-api documentation
     for [number, data] in received_messages.items():
         message = data["text"]
 

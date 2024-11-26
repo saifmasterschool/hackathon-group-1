@@ -15,14 +15,17 @@ sms_manager = SMSDataManager()
 # Receive messages in a timed-interval
 # Basic usage added
 while True:
-    received_messages = sms_manager.get_messages()
+    received_messages: list[dict] = sms_manager.get_messages()
     print(received_messages)
 
-    # Error because of wrong masterschool-api documentation
-    for [number, data] in received_messages.items():
-        message = data["text"]
+    for message in received_messages:
+        try:
+            sender_number = int(message["sender"])
+        except ValueError:
+            print("Sender number is not convertable to number")
+            continue
 
-        if "joke" in message.lower():
-            sms_manager.send_sms(number, get_joke_from_api(), "DailyMoodBoost")
+        if "joke" in message["text"].lower():
+            sms_manager.send_sms(sender_number, get_joke_from_api(), "DailyMoodBoost")
 
     time.sleep(MESSAGE_FETCH_INTERVAL)

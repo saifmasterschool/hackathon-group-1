@@ -12,5 +12,9 @@ class DataManager:
         })
 
     @staticmethod
+    def register_phone_number_to_team(phone_number, team):
+        return requests.post(f'{MASTERSCHOOL_API}')
+
+    @staticmethod
     def get_messages():
         return requests.get(f'{MASTERSCHOOL_API}/team/getMessages/{MASTERSCHOOL_API_TEAMNAME}').json()

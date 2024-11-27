@@ -95,7 +95,6 @@ def broadcast_water_reminder():
 
     # Fetch all subscribed users that need to be reminded to drink
     users = sqlite_manager.get_user_by_channel("WATER")
-
     for user in users:
         sms_manager.send_sms(
             phone_number=user["phone_number"],
@@ -108,13 +107,25 @@ def broadcast_joke():
     """
     Sends a joke to user to boost a mood.
     """
-    pass
+    users = sqlite_manager.get_user_by_channel("JOKE")
+    for user in users:
+        sms_manager.send_sms(
+            phone_number=user["phone_number"],
+            message="""Here is your dose of humor"""
+        )
 
 
 def broadcast_quote():
     """
     Sends some quotes to user to motivate him.
     """
+    users = sqlite_manager.get_user_by_channel("QUOTE")
+    for user in users:
+        sms_manager.send_sms(
+            phone_number=user["phone_number"],
+            message="""Here is your motivation"""
+        )
+
     pass
 
 

@@ -98,7 +98,7 @@ def broadcast_water_reminder():
 
     for user in users:
         sms_manager.send_sms(
-            phone_number=user["phone_number"],
+            phone_number=user.phone_number,
             message="""Hi, Please your water.
 Otherwise you'll surely die! You forget it three times already. Calling an ambulance."""
         )

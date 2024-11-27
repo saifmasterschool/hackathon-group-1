@@ -10,7 +10,6 @@ from external_api.jokes import get_joke_from_api
 from handlers import join_channel, subscribe_team
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
-from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE
 
 
 def start_message_loop():
@@ -99,8 +98,9 @@ def broadcast_water_reminder():
 
     for user in users:
         sms_manager.send_sms(
-            phone_number=user.phone_number,
-            message=BROADCAST_WATER_REMINDER_MESSAGE
+            phone_number=user["phone_number"],
+            message="""Hi, Please your water.
+Otherwise you'll surely die! You forget it three times already. Calling an ambulance."""
         )
 
 

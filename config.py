@@ -15,6 +15,8 @@ basedir = path.abspath(path.dirname(__file__))
 SQLite_file = f'sqlite:///{path.join(basedir, "database", "dailyMoodBoost.sqlite")}'
 
 JOKES_API = "https://v2.jokeapi.dev/joke/Any?type=single"
+QUOTES_API = "https://zenquotes.io/api/random"
+
 
 KEYWORD_JOIN_CHANNEL = "JOIN"
 AVAILABLE_CHANNELS = ["WATER", "JOKE", "QUOTE"]

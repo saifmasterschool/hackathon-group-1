@@ -7,12 +7,11 @@ from config import MESSAGE_FETCH_INTERVAL, KEYWORD_JOIN_CHANNEL
 from data_managers import sms_manager, sqlite_manager
 from database.extension import Base, engine
 from external_api.jokes import get_joke_from_api
-from handlers import join_channel, subscribe_team
+from external_api.quotes import get_quote_from_api
+from handlers import join_channel, subscribe_team, unsubscribe_team
+from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
-from external_api.quotes import get_quote_from_api
-
-from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE
 
 
 def start_message_loop():
@@ -68,6 +67,9 @@ def handle_message(message):
     """
     if "SUBSCRIBE" in message["text"]:
         return subscribe_team(message, sms_manager)
+
+    if "UNSUBSCRIBE" in message["text"]:
+        return unsubscribe_team(message, sms_manager)
 
     if KEYWORD_JOIN_CHANNEL in message["text"]:
         return join_channel(message, sms_manager, sqlite_manager)

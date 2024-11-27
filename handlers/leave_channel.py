@@ -3,6 +3,19 @@ from config import AVAILABLE_CHANNELS
 
 
 def leave_channel(message):
+    """
+    Unsubscribes the user from a specified channel.
+
+    This function takes a message dictionary containing the sender's phone number and the text message.
+    It extracts the channel name from the message text and processes the unsubscription request.
+    If the channel name is not provided, misspelled, or the user is not subscribed to the channel,
+    appropriate SMS responses are sent to the user.
+
+    Parameters:
+        message (dict): A dictionary containing 'sender' (phone number) and 'text' (message text).
+
+    Returns: None
+    """
     phone_number = message["sender"]
     _, *channel = message["text"].split(" ")
 

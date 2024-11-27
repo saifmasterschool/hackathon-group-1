@@ -7,5 +7,9 @@ Subscribe to our variety of services by sending following message:
 Write JOKE to receive a joke instantly."""
 
 
+STATUS_MESSAGE = f"""
+
+"""
+
 BROADCAST_WATER_REMINDER_MESSAGE = """Hi, Please your water.
 Otherwise you'll surely die! You forget it three times already. Calling an ambulance."""

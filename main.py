@@ -77,6 +77,8 @@ def handle_message(message):
     if KEYWORD_JOIN_CHANNEL in message["text"]:
         return join_channel(message, sms_manager, sqlite_manager)
 
+    if KEYWORD_
+
     if "joke" in message["text"].lower():
         print(f"Sending joke to {message["sender"]}")
         return sms_manager.send_sms(

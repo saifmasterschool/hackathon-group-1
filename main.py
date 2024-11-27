@@ -10,6 +10,7 @@ from external_api.jokes import get_joke_from_api
 from handlers import join_channel, subscribe_team
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
+from external_api.quotes import get_quote_from_api
 
 
 def start_message_loop():
@@ -78,6 +79,15 @@ def handle_message(message):
         )
 
 
+    if "quote" in message["text"].lower():
+        print(f"Sending quote to {message['sender']}")
+    return sms_manager.send_sms(
+        message.get("sender"),
+        get_quote_from_api(),
+        "Daily Quote from DailyMoodBoost"
+    )
+
+
 def start_scheduler():
     """
     Start an infinite loop to execute scheduled jobs. Scheduled job in the context of our app are
@@ -109,7 +119,19 @@ def broadcast_joke():
 
 
 def broadcast_quote():
-    pass
+    """
+    Sends an SMS to subscribed users with a daily quote
+    """
+
+    # Fetch all subscribed users who need to receive quotes
+    users = sqlite_manager.get_user_by_channel("QUOTE")
+
+    for user in users:
+        sms_manager.send_sms(
+            phone_number=user["phone_number"],
+            message=f"""Hi, here's your daily dose of inspiration:
+{get_quote_from_api()}"""
+        )
 
 
 # Schedules for drinking water
@@ -123,8 +145,8 @@ schedule.every().day.at("10:00").do(broadcast_joke)
 schedule.every().day.at("12:00").do(broadcast_joke)
 
 # Schedules for quotes
-schedule.every().day.at("10:00").do(broadcast_joke)
-schedule.every().day.at("12:00").do(broadcast_joke)
+schedule.every().day.at("09:30").do(broadcast_quote)
+schedule.every().day.at("16.00").do(broadcast_quote)
 # schedule.every().day.at("17:00").do(job2)
 
 

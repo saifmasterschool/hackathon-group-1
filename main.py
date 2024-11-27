@@ -1,17 +1,12 @@
 import time
 
-from config import MESSAGE_FETCH_INTERVAL, WELCOME_MESSAGE, KEYWORD_JOIN_CHANNEL
-from data_managers import SMSDataManager, SQLiteDataManger
+from config import MESSAGE_FETCH_INTERVAL, KEYWORD_JOIN_CHANNEL
+from data_managers import sms_manager, sqlite_manager
+from database.extension import Base, engine
 from external_api.jokes import get_joke_from_api
 from handlers import join_channel, subscribe_team
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
-
-# Create Database-Manager
-sqlite_manager = SQLiteDataManger()
-
-# Create SMS-manager
-sms_manager = SMSDataManager()
 
 
 def start_message_loop():
@@ -81,4 +76,5 @@ def handle_message(message):
 
 
 if __name__ == "__main__":
+    Base.metadata.create_all(engine)
     start_message_loop()

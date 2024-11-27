@@ -115,7 +115,6 @@ def broadcast_joke():
 {get_joke_from_api()}"""
         )
 
-
 def broadcast_quote():
     """
     Sends an SMS to subscribed users with a daily quote

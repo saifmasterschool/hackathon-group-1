@@ -117,13 +117,17 @@ def broadcast_joke():
 
 def broadcast_quote():
     """
-    Sends some quotes to user to motivate him.
+    Sends an SMS to subscribed users with a daily quote
     """
+
+    # Fetch all subscribed users who need to receive quotes
     users = sqlite_manager.get_user_by_channel("QUOTE")
+
     for user in users:
         sms_manager.send_sms(
             phone_number=user["phone_number"],
-            message="""Here is your motivation"""
+            message=f"""Hi, here's your daily dose of inspiration:
+{get_quote_from_api()}"""
         )
 
 

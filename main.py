@@ -1,4 +1,7 @@
+import threading
 import time
+
+import schedule
 
 from config import MESSAGE_FETCH_INTERVAL, KEYWORD_JOIN_CHANNEL
 from data_managers import sms_manager, sqlite_manager
@@ -75,6 +78,38 @@ def handle_message(message):
         )
 
 
+def start_scheduler():
+    """
+    Start an infinite loop to execute scheduled jobs. Scheduled job in the context of our app are
+    SMS reminders that users subscribed to.
+    """
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+
+def water_reminder():
+    """
+    Sends a sms to remind people to drink water.
+    """
+
+    # Fetch all subscribed users that need to be reminded to drink
+    users = sqlite_manager.get_user_by_channel("WATER")
+
+    print(users)
+
+
+schedule.every().day.at("09:33").do(water_reminder)
+# schedule.every().day.at("17:00").do(job2)
+
+
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
-    start_message_loop()
+
+    # Put both loops of different threads since both use time.sleep and would otherwise cancel each other out.
+    thread1 = threading.Thread(target=start_message_loop)
+    thread2 = threading.Thread(target=start_scheduler)
+
+    # Start the threads.
+    thread1.start()
+    thread2.start()

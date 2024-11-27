@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Type
 
+from sqlalchemy import func
+
 from database.extension import Session
 from schemas import Message, User
 
@@ -78,7 +80,16 @@ def get_user_by_phone_number(phone_number: int) -> User:
     session = Session()
 
     try:
-        return session.query(User).filter(User.phone_number == phone_number).one()
+        return session.query(User).filter(User.phone_number == phone_number).first()
+    finally:
+        session.close()
+
+
+def get_user_by_channel(channel: str) -> list[Type[User]]:
+    session = Session()
+
+    try:
+        return session.query(User).filter(func.json_extract(User.channels, '$[*]').contains('WATER')).all()
     finally:
         session.close()
 

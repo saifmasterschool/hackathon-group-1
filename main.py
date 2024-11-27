@@ -8,7 +8,7 @@ from data_managers import sms_manager, sqlite_manager
 from database.extension import Base, engine
 from external_api.jokes import get_joke_from_api
 from external_api.quotes import get_quote_from_api
-from handlers import join_channel, subscribe_team, unsubscribe_team, status_response
+from handlers import join_channel, subscribe_team, unsubscribe_team, status_response, leave_channel
 from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
@@ -90,10 +90,17 @@ def handle_message(message):
 
     if "quote" in message["text"].lower():
         print(f"Sending quote to {message['sender']}")
+        return sms_manager.send_sms(
+            message.get("sender"),
+            get_quote_from_api(),
+            "Daily Quote from DailyMoodBoost"
+        )
+
     return sms_manager.send_sms(
-        message.get("sender"),
-        get_quote_from_api(),
-        "Daily Quote from DailyMoodBoost"
+        phone_number=message["sender"],
+        message=f"""Your message could not be recognised.
+Use keywords SUBSCRIBE, UNSUBSCRIBE, STATUS, {KEYWORD_JOIN_CHANNEL} or {KEYWORD_LEAVE_CHANNEL}.
+Or just write joke or quote to instantly receive a joke or quote ;)"""
     )
 
 

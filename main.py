@@ -120,7 +120,7 @@ def broadcast_water_reminder():
     """
 
     # Fetch all subscribed users that need to be reminded to drink
-    users = sqlite_manager.get_user_by_channel("WATER")
+    users = sqlite_manager.get_users_by_channel("WATER")
 
     for user in users:
         sms_manager.send_sms(
@@ -139,7 +139,7 @@ def broadcast_quote():
     """
 
     # Fetch all subscribed users who need to receive quotes
-    users = sqlite_manager.get_user_by_channel("QUOTE")
+    users = sqlite_manager.get_users_by_channel("QUOTE")
 
     for user in users:
         sms_manager.send_sms(
@@ -147,6 +147,19 @@ def broadcast_quote():
             message=f"""Hi, here's your daily dose of inspiration:
 {get_quote_from_api()}"""
         )
+
+
+def setup_schedulers():
+    users = sqlite_manager.get_users()
+    print("users", users)
+
+    users_with_custom_schedule = [
+        user
+        for user in users
+        if user["custom_schedules"]
+    ]
+
+    print("users_with_custom_schedule", users_with_custom_schedule)
 
 
 # Schedules for drinking water
@@ -161,12 +174,14 @@ schedule.every().day.at("12:00").do(broadcast_joke)
 
 # Schedules for quotes
 schedule.every().day.at("09:30").do(broadcast_quote)
-schedule.every().day.at("16.00").do(broadcast_quote)
+schedule.every().day.at("16:00").do(broadcast_quote)
 # schedule.every().day.at("17:00").do(job2)
 
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
+
+    setup_schedulers()
 
     # Put both loops of different threads since both use time.sleep and would otherwise cancel each other out.
     thread1 = threading.Thread(target=start_message_loop)

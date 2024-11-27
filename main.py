@@ -111,7 +111,8 @@ def broadcast_joke():
     for user in users:
         sms_manager.send_sms(
             phone_number=user["phone_number"],
-            message="""Here is your dose of humor"""
+            message=f"""Here is your dose of humor:
+{get_joke_from_api()}"""
         )
 
 
@@ -119,7 +120,6 @@ def broadcast_quote():
     """
     Sends an SMS to subscribed users with a daily quote
     """
-
     # Fetch all subscribed users who need to receive quotes
     users = sqlite_manager.get_user_by_channel("QUOTE")
 

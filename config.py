@@ -19,6 +19,8 @@ QUOTES_API = "https://zenquotes.io/api/random"
 
 
 KEYWORD_JOIN_CHANNEL = "JOIN"
+KEYWORD_LEAVE_CHANNEL = "LEAVE"
+
 AVAILABLE_CHANNELS = ["WATER", "JOKE", "QUOTE"]
 
 

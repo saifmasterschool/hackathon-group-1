@@ -10,12 +10,15 @@ from external_api.jokes import get_joke_from_api
 from handlers import join_channel, subscribe_team
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
+from external_api.quotes import get_quote_from_api
+
+from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE
 
 
 def start_message_loop():
     """
     Starts an infinite loop to receive all messages for the teamname from the Masterschool-Api.
-    Filters the received messages to only work on new messages that haven't been handled.
+    Filters the received messages to only work on new messages that havent been handled.
     Filters message texts provide correct functionality, e.g. adding senders to broadcast messages.
     """
     # Receive messages in a timed-interval
@@ -77,6 +80,14 @@ def handle_message(message):
             "Daily Joke from DailyMoodBoost"
         )
 
+    if "quote" in message["text"].lower():
+        print(f"Sending quote to {message['sender']}")
+    return sms_manager.send_sms(
+        message.get("sender"),
+        get_quote_from_api(),
+        "Daily Quote from DailyMoodBoost"
+    )
+
 
 def start_scheduler():
     """
@@ -95,30 +106,23 @@ def broadcast_water_reminder():
 
     # Fetch all subscribed users that need to be reminded to drink
     users = sqlite_manager.get_user_by_channel("WATER")
+
     for user in users:
         sms_manager.send_sms(
             phone_number=user["phone_number"],
-            message="""Hi, Please drink water.
-Otherwise you'll surely die! You forget it three times already. Calling an ambulance."""
+            message=BROADCAST_WATER_REMINDER_MESSAGE
         )
 
 
 def broadcast_joke():
-    """
-    Sends a joke to user to boost a mood.
-    """
-    users = sqlite_manager.get_user_by_channel("JOKE")
-    for user in users:
-        sms_manager.send_sms(
-            phone_number=user["phone_number"],
-            message=f"""Here is your dose of humor:
-{get_joke_from_api()}"""
-        )
+    pass
+
 
 def broadcast_quote():
     """
     Sends an SMS to subscribed users with a daily quote
     """
+
     # Fetch all subscribed users who need to receive quotes
     users = sqlite_manager.get_user_by_channel("QUOTE")
 
@@ -129,6 +133,7 @@ def broadcast_quote():
 {get_quote_from_api()}"""
         )
 
+
 # Schedules for drinking water
 schedule.every().day.at("08:00").do(broadcast_water_reminder)
 schedule.every().day.at("10:00").do(broadcast_water_reminder)
@@ -138,13 +143,10 @@ schedule.every().day.at("14:00").do(broadcast_water_reminder)
 # Schedules for jokes
 schedule.every().day.at("10:00").do(broadcast_joke)
 schedule.every().day.at("12:00").do(broadcast_joke)
-schedule.every().day.at("16:00").do(broadcast_joke)
-schedule.every().day.at("20:00").do(broadcast_joke)
+
 # Schedules for quotes
-schedule.every().day.at("10:00").do(broadcast_quote)
-schedule.every().day.at("12:00").do(broadcast_quote)
-schedule.every().day.at("14:00").do(broadcast_quote)
-schedule.every().day.at("18:00").do(broadcast_quote)
+schedule.every().day.at("09:30").do(broadcast_quote)
+schedule.every().day.at("16.00").do(broadcast_quote)
 # schedule.every().day.at("17:00").do(job2)
 
 

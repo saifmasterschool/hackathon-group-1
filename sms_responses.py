@@ -11,5 +11,4 @@ STATUS_MESSAGE = f"""
 
 """
 
-BROADCAST_WATER_REMINDER_MESSAGE = """Hi, Please your water.
-Otherwise you'll surely die! You forget it three times already. Calling an ambulance."""
+BROADCAST_WATER_REMINDER_MESSAGE = """This is your drinking reminder number 3. Please respond with "DRUNK 3" to confirm you drank your water"""

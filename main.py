@@ -6,6 +6,7 @@ import schedule
 from config import MESSAGE_FETCH_INTERVAL, KEYWORD_JOIN_CHANNEL, KEYWORD_LEAVE_CHANNEL
 from data_managers import sms_manager, sqlite_manager
 from database.extension import Base, engine
+from database.init import init_database
 from external_api.jokes import get_joke_from_api
 from external_api.quotes import get_quote_from_api
 from handlers import join_channel, subscribe_team, unsubscribe_team, status_response, leave_channel
@@ -80,6 +81,9 @@ def handle_message(message):
     if KEYWORD_LEAVE_CHANNEL in message["text"]:
         return leave_channel(message)
 
+    if "DRUNK" in message["text"]:
+        return handle_drink_response(message)
+
     if "joke" in message["text"].lower():
         print(f"Sending joke to {message["sender"]}")
         return sms_manager.send_sms(
@@ -151,12 +155,13 @@ def broadcast_quote():
 
 def setup_schedulers():
     users = sqlite_manager.get_users()
-    print("users", users)
+    for user in users:
+        print(f"channels for {user.phone_number}", user.channels)
 
     users_with_custom_schedule = [
         user
         for user in users
-        if user["custom_schedules"]
+        if user.custom_schedules
     ]
 
     print("users_with_custom_schedule", users_with_custom_schedule)
@@ -181,6 +186,7 @@ schedule.every().day.at("16:00").do(broadcast_quote)
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
 
+    init_database()
     setup_schedulers()
 
     # Put both loops of different threads since both use time.sleep and would otherwise cancel each other out.

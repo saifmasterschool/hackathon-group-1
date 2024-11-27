@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Type
 
+from sqlalchemy.orm import joinedload
+
 from database.extension import Session
 from schemas import Message, User
 
@@ -106,9 +108,13 @@ def get_users() -> list[Type[User]]:
     session = Session()
 
     try:
-        return session.query(User).all()
+        return session.query(User).options(joinedload(User.channels), joinedload(User.custom_schedules)).all()
     finally:
         session.close()
+
+
+def add_completed_drinking(phone_number):
+    pass
 
 
 def get_user_by_phone_number(phone_number: int) -> User:

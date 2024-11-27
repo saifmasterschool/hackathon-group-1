@@ -94,6 +94,18 @@ def get_user_by_channel(channel: str) -> list[Type[User]]:
         session.close()
 
 
+def get_channels_of_user(phone_number: int) -> list[str]:
+    session = Session()
+
+    try:
+        user = session.query(User).filter(User.phone_number == phone_number).first()
+        if user:
+            return user["channels"]
+        return []
+    finally:
+        session.close()
+
+
 def update_user_channels(phone_number: int, channels: list[str]) -> User:
     session = Session()
 

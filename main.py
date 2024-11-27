@@ -15,7 +15,7 @@ from utils.validation import validate_message
 def start_message_loop():
     """
     Starts an infinite loop to receive all messages for the teamname from the Masterschool-Api.
-    Filters the received messages to only work on new messages that havent been handled.
+    Filters the received messages to only work on new messages that haven't been handled.
     Filters message texts provide correct functionality, e.g. adding senders to broadcast messages.
     """
     # Receive messages in a timed-interval
@@ -99,16 +99,22 @@ def broadcast_water_reminder():
     for user in users:
         sms_manager.send_sms(
             phone_number=user["phone_number"],
-            message="""Hi, Please your water.
+            message="""Hi, Please drink water.
 Otherwise you'll surely die! You forget it three times already. Calling an ambulance."""
         )
 
 
 def broadcast_joke():
+    """
+    Sends a joke to user to boost a mood.
+    """
     pass
 
 
 def broadcast_quote():
+    """
+    Sends some quotes to user to motivate him.
+    """
     pass
 
 
@@ -121,10 +127,13 @@ schedule.every().day.at("14:00").do(broadcast_water_reminder)
 # Schedules for jokes
 schedule.every().day.at("10:00").do(broadcast_joke)
 schedule.every().day.at("12:00").do(broadcast_joke)
-
+schedule.every().day.at("16:00").do(broadcast_joke)
+schedule.every().day.at("20:00").do(broadcast_joke)
 # Schedules for quotes
-schedule.every().day.at("10:00").do(broadcast_joke)
-schedule.every().day.at("12:00").do(broadcast_joke)
+schedule.every().day.at("10:00").do(broadcast_quote)
+schedule.every().day.at("12:00").do(broadcast_quote)
+schedule.every().day.at("14:00").do(broadcast_quote)
+schedule.every().day.at("18:00").do(broadcast_quote)
 # schedule.every().day.at("17:00").do(job2)
 
 

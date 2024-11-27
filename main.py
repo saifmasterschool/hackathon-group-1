@@ -12,6 +12,8 @@ from utils.information import print_worked_on_messages
 from utils.validation import validate_message
 from external_api.quotes import get_quote_from_api
 
+from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE
+
 
 def start_message_loop():
     """
@@ -78,7 +80,6 @@ def handle_message(message):
             "Daily Joke from DailyMoodBoost"
         )
 
-
     if "quote" in message["text"].lower():
         print(f"Sending quote to {message['sender']}")
     return sms_manager.send_sms(
@@ -109,8 +110,7 @@ def broadcast_water_reminder():
     for user in users:
         sms_manager.send_sms(
             phone_number=user["phone_number"],
-            message="""Hi, Please your water.
-Otherwise you'll surely die! You forget it three times already. Calling an ambulance."""
+            message=BROADCAST_WATER_REMINDER_MESSAGE
         )
 
 

@@ -1,11 +1,11 @@
 from sms_responses import WELCOME_MESSAGE
+from data_managers import sms_manager
 
 
-def subscribe_team(message, sms_manager):
+def subscribe_team(message):
     """
     Replies to the user after subscribing to the team-name.
     :param message: The user-message from the MS API.
-    :param sms_manager: The SMS DataManager.
     :return: Sends a message to the sender.
     """
     print(f"Replying to {message["sender"]} with subscription info")

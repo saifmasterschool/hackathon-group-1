@@ -88,7 +88,7 @@ def start_scheduler():
         time.sleep(1)
 
 
-def water_reminder():
+def broadcast_water_reminder():
     """
     Sends a sms to remind people to drink water.
     """
@@ -96,10 +96,35 @@ def water_reminder():
     # Fetch all subscribed users that need to be reminded to drink
     users = sqlite_manager.get_user_by_channel("WATER")
 
-    print(users)
+    for user in users:
+        sms_manager.send_sms(
+            phone_number=user["phone_number"],
+            message="""Hi, Please your water.
+Otherwise you'll surely die! You forget it three times already. Calling an ambulance."""
+        )
 
 
-schedule.every().day.at("09:33").do(water_reminder)
+def broadcast_joke():
+    pass
+
+
+def broadcast_quote():
+    pass
+
+
+# Schedules for drinking water
+schedule.every().day.at("08:00").do(broadcast_water_reminder)
+schedule.every().day.at("10:00").do(broadcast_water_reminder)
+schedule.every().day.at("12:00").do(broadcast_water_reminder)
+schedule.every().day.at("14:00").do(broadcast_water_reminder)
+
+# Schedules for jokes
+schedule.every().day.at("10:00").do(broadcast_joke)
+schedule.every().day.at("12:00").do(broadcast_joke)
+
+# Schedules for quotes
+schedule.every().day.at("10:00").do(broadcast_joke)
+schedule.every().day.at("12:00").do(broadcast_joke)
 # schedule.every().day.at("17:00").do(job2)
 
 

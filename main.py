@@ -126,8 +126,6 @@ def broadcast_quote():
             message="""Here is your motivation"""
         )
 
-    pass
-
 
 # Schedules for drinking water
 schedule.every().day.at("08:00").do(broadcast_water_reminder)

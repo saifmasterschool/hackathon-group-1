@@ -115,8 +115,16 @@ def broadcast_water_reminder():
 
 
 def broadcast_joke():
-    pass
-
+  """
+  Sends a joke to the user to boost a mood.
+  """
+  users = sqlite_manager.get_user_by_channel("JOKE")
+  for user in users:
+    sms_manager.send_sms(
+      phone_number=user["phone_number"],
+      message=f"""Here is your dose of humor:
+{get_joke_from_api()}"""
+    )
 
 def broadcast_quote():
     """
@@ -141,11 +149,13 @@ schedule.every().day.at("14:00").do(broadcast_water_reminder)
 
 # Schedules for jokes
 schedule.every().day.at("10:00").do(broadcast_joke)
-schedule.every().day.at("12:00").do(broadcast_joke)
+schedule.every().day.at("15:00").do(broadcast_joke)
+schedule.every().day.at("20:00").do(broadcast_joke)
 
 # Schedules for quotes
 schedule.every().day.at("09:30").do(broadcast_quote)
-schedule.every().day.at("16.00").do(broadcast_quote)
+schedule.every().day.at("16.30").do(broadcast_quote)
+schedule.every().day.at("20:00").do(broadcast_quote)
 # schedule.every().day.at("17:00").do(job2)
 
 

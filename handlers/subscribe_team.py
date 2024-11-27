@@ -1,4 +1,4 @@
-from config import WELCOME_MESSAGE
+from sms_responses import WELCOME_MESSAGE
 
 
 def subscribe_team(message, sms_manager):

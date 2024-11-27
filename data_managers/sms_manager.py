@@ -18,10 +18,10 @@ def create_team(team_name=MASTERSCHOOL_API_TEAMNAME):
 
 def register_phone_number_to_team(phone_number, team):
     """
-    Registers
-    :param phone_number:
-    :param team:
-    :return:
+    Registers a phone number to a team programmatically.
+    :param phone_number: The phone number to add.
+    :param team: The team name to add the number to.
+    :return: The response of the MS API.
     """
     return requests.post(f'{MASTERSCHOOL_API}/team/registerNumber', json={
         "phoneNumber": phone_number,

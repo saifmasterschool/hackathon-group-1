@@ -7,8 +7,7 @@ from config import MESSAGE_FETCH_INTERVAL, KEYWORD_JOIN_CHANNEL, KEYWORD_LEAVE_C
 from data_managers import sms_manager, sqlite_manager
 from database.extension import Base, engine
 from database.init import init_database
-from external_api.jokes import get_joke_from_api
-from external_api.quotes import get_quote_from_api
+from external_api import get_quote_from_api, get_joke_from_api, get_next_match
 from handlers import join_channel, subscribe_team, unsubscribe_team, status_response, leave_channel, \
     handle_drink_response
 from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE, DEFAULT_MESSAGE
@@ -91,6 +90,18 @@ def handle_message(message):
             message.get("sender"),
             get_joke_from_api(),
             "Daily Joke from DailyMoodBoost"
+        )
+
+    if "GAME" in message["text"]:
+        _, *team_name = message["text"].split(" ")
+        team_name = " ".join(team_name)
+        next_match = get_next_match(team_name)
+
+        print("next match", next_match)
+
+        return sms_manager.send_sms(
+            message["sender"],
+            next_match
         )
 
     if "quote" in message["text"].lower():

@@ -98,7 +98,7 @@ def water_reminder():
 
     print(users)
 
-
+# TODO: Write scheduler functions
 schedule.every().day.at("09:33").do(water_reminder)
 # schedule.every().day.at("17:00").do(job2)
 

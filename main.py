@@ -133,7 +133,6 @@ def broadcast_quote():
 {get_quote_from_api()}"""
         )
 
-
 # Schedules for drinking water
 schedule.every().day.at("08:00").do(broadcast_water_reminder)
 schedule.every().day.at("10:00").do(broadcast_water_reminder)

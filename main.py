@@ -66,10 +66,13 @@ def handle_message(message):
     :param message: The message received from the Masterschool SMS API.
     """
     if "SUBSCRIBE" in message["text"]:
-        return subscribe_team(message, sms_manager)
+        return subscribe_team(message)
 
     if "UNSUBSCRIBE" in message["text"]:
-        return unsubscribe_team(message, sms_manager)
+        return unsubscribe_team(message)
+
+    if "STATUS" in message["text"]:
+        return status_response(message)
 
     if KEYWORD_JOIN_CHANNEL in message["text"]:
         return join_channel(message, sms_manager, sqlite_manager)

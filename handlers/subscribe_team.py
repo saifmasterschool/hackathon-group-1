@@ -18,8 +18,7 @@ def subscribe_team(message):
         channels = sqlite_manager.get_channels_of_user(phone_number)
         return sms_manager.send_sms(
             phone_number,
-            f"""Welcome back. Your subscription settings are restored.
-({", ".join(channels)})"""
+            f"""Welcome back. Your subscription settings are restored. ({", ".join(channels)})"""
         )
 
     return sms_manager.send_sms(

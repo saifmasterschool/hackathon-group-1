@@ -13,6 +13,8 @@ from handlers import join_channel, subscribe_team, unsubscribe_team, status_resp
 from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE, DEFAULT_MESSAGE
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
+from handlers.validate import validate_time_format
+from config import AVAILABLE_CHANNELS
 
 
 def start_message_loop():
@@ -83,12 +85,37 @@ def handle_message(message):
 
     if "CHANGESCHEDULE" in message["text"] or "CS" in message["text"]:
         """
-        CS WATER 8:00 10:00 17:53
+        Example message format:
+        CS WATER 08:00 12:30 18:45
         """
+
         _, channel, *slots = message["text"].split(" ")
 
-        # update slots where slots are a list of str formatted [%h:%m]
-        sqlite_manager.update_time_slots(channel, slots)
+        # Ensures that  the channel is valid
+        if channel.upper() not in AVAILABLE_CHANNELS:
+            sms_manager.send_sms(
+                phone_number=message["sender"],
+                message=f"Invalid channel '{channel}'. Available channels are: {', '.join(AVAILABLE_CHANNELS)}."
+            )
+            return
+
+
+        invalid_slots = [slot for slot in slots if not validate_time_format(slot)]
+        if invalid_slots:
+            sms_manager.send_sms(
+                phone_number=message["sender"],
+                message=f"Invalid time slot(s): {', '.join(invalid_slots)}. Please provide times in HH:MM format."
+            )
+            return
+
+        # Update the user's schedule in the database
+        sqlite_manager.update_user_schedule(message["sender"], channel.upper(), slots)
+
+        # Send confirmation to the user
+        sms_manager.send_sms(
+            phone_number=message["sender"],
+            message=f"Your schedule for '{channel}' has been updated to: {', '.join(slots)}."
+        )
 
     if "DRUNK" in message["text"]:
         return handle_drink_response(message)

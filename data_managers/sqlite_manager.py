@@ -243,3 +243,37 @@ def remove_subscription(phone_number, channel_id):
             session.commit()
     finally:
         session.close()
+
+
+def update_user_schedule(phone_number: int, channel_name: str, slots: list[str]) -> None:
+    """
+    Updates the user's schedule for a specific channel.
+    :param phone_number: The phone number of the user.
+    :param channel_name: The name of the channel to update.
+    :param slots: A list of time slots (in HH:MM format) for the schedule.
+    """
+    session = Session()
+
+    try:
+        # Get the user by phone number
+        user = session.query(User).filter(User.phone_number == phone_number).first()
+
+        if not user:
+            raise ValueError(f"User with phone number {phone_number} not found.")
+
+        # Ensure the channel exists in the database
+        channel = session.query(Channel).filter(Channel.channel_name == channel_name.upper()).first()
+
+        if not channel:
+            raise ValueError(f"Channel '{channel_name}' does not exist.")
+
+        # Update the user's custom schedules
+        custom_schedules = user.custom_schedules or {}
+        custom_schedules[channel_name.upper()] = slots
+
+        user.custom_schedules = custom_schedules
+        session.commit()
+
+    finally:
+        session.close()
+

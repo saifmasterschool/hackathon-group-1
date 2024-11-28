@@ -7,7 +7,7 @@ from sqlalchemy.orm import joinedload
 from utils.decorators import with_session
 
 from database.extension import Session
-from schemas import Message, User, Subscription, Channel
+from schemas import Message, User, Subscription, Channel, CustomSchedule
 
 
 def get_messages() -> list[Type[Message]]:
@@ -119,6 +119,20 @@ def get_subscriptions_of_user(phone_number):
 
     try:
         return session.query(Subscription).filter(Subscription.phone_number == phone_number).all()
+    finally:
+        session.close()
+
+
+def get_custom_schedules():
+    session = Session()
+
+    try:
+        query = session.query(CustomSchedule).options(
+            joinedload(CustomSchedule.user),
+            joinedload(CustomSchedule.channel)
+        ).all()
+
+        return query
     finally:
         session.close()
 

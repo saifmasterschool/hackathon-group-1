@@ -1,7 +1,9 @@
-import threading  # comment
+import threading
 import time
 
 import schedule
+
+from task_scheduler import TaskScheduler
 
 from config import MESSAGE_FETCH_INTERVAL, KEYWORD_JOIN_CHANNEL, KEYWORD_LEAVE_CHANNEL
 from data_managers import sms_manager, sqlite_manager
@@ -13,6 +15,9 @@ from handlers import join_channel, subscribe_team, unsubscribe_team, status_resp
 from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE, DEFAULT_MESSAGE
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
+
+# Initialize TaskScheduler
+taskScheduler = TaskScheduler()
 
 
 def start_message_loop():
@@ -127,16 +132,6 @@ def handle_message(message):
     )
 
 
-def start_scheduler():
-    """
-    Start an infinite loop to execute scheduled jobs. Scheduled job in the context of our app are
-    SMS reminders that users subscribed to.
-    """
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
-
 def broadcast_water_reminder():
     """
     Sends a sms to remind people to drink water.
@@ -180,18 +175,44 @@ def broadcast_quote():
         )
 
 
+def individual_message(phone_number, message):
+    return sms_manager.send_sms(
+        phone_number,
+        message
+    )
+
+
+schedule_dispatcher = {
+    "WATER": lambda phone_number: individual_message(
+        phone_number,
+        BROADCAST_WATER_REMINDER_MESSAGE
+    ),
+    "JOKE": lambda phone_number: individual_message(
+        phone_number,
+        get_joke_from_api()
+    ),
+    "QUOTE": lambda phone_number: individual_message(
+        phone_number,
+        get_quote_from_api()
+    ),
+}
+
+
 def setup_schedulers():
-    users = sqlite_manager.get_users()
-    for user in users:
-        print(f"channels for {user.phone_number}", user.channels)
+    # Fetches all custom schedules
+    custom_schedules = sqlite_manager.get_custom_schedules()
 
-    users_with_custom_schedule = [
-        user
-        for user in users
-        if user.custom_schedules
-    ]
-
-    print("users_with_custom_schedule", users_with_custom_schedule)
+    # Loop over the schedules
+    for custom_schedule in custom_schedules:
+        channel = custom_schedule.channel.channel_name
+        phone_number = custom_schedule.user.phone_number
+        for slot in custom_schedule.schedule.split(" "):
+            taskScheduler.add_task(
+                slot,
+                lambda _: schedule_dispatcher[channel](phone_number),
+                channel,
+                phone_number
+            )
 
 
 # Schedules for drinking water
@@ -207,8 +228,13 @@ schedule.every().day.at("20:00").do(broadcast_joke)
 
 # Schedules for quotes
 schedule.every().day.at("09:30").do(broadcast_quote)
-schedule.every().day.at("16.30").do(broadcast_quote)
+schedule.every().day.at("16:30").do(broadcast_quote)
 schedule.every().day.at("20:00").do(broadcast_quote)
+
+
+def print_me():
+    print("HELLO")
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
@@ -218,8 +244,9 @@ if __name__ == "__main__":
 
     # Put both loops of different threads since both use time.sleep and would otherwise cancel each other out.
     thread1 = threading.Thread(target=start_message_loop)
-    thread2 = threading.Thread(target=start_scheduler)
+    # thread2 = threading.Thread(target=start_scheduler)
+    thread2 = threading.Thread(target=taskScheduler.run_pending)
 
     # Start the threads.
-    thread1.start()
+    # thread1.start()
     thread2.start()

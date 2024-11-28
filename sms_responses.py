@@ -14,9 +14,9 @@ CHANGESCHEDULE WATER hh:mm hh:mm hh:mm
 
 STATUS_MESSAGE = lambda USER_SUBSCRIPTIONS: f"""📊 Here's your subscription status:
 - You subscribed to: {", ".join(USER_SUBSCRIPTIONS)}.
-- Not subscribed yet? Pick your favorite from channels: WATER, JOKE, QUOTE, MATCH.
+- Not subscribed yet? Pick your favorite from channels: WATER, JOKE, QUOTE or MATCH score.
 Want to switch it up? Just send:
-"JOIN WATER/ JOKE/ QUOTE or MATCH" or "LEAVE <service>" to unsubscribe.
+"JOIN WATER/ JOKE/ QUOTE or GAME <team_name>" or "LEAVE <service>" to unsubscribe.
 Stay awesome and stay connected! ✨
 Current status of DailyMoodBoost services:
 You can also write JOKE or QUOTE to instantly receive a joke or a motivational quote.

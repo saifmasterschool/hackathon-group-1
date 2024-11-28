@@ -1,4 +1,4 @@
-import threading
+import threading  # comment
 import time
 
 import schedule
@@ -81,6 +81,15 @@ def handle_message(message):
     if KEYWORD_LEAVE_CHANNEL in message["text"]:
         return leave_channel(message)
 
+    if "CHANGESCHEDULE" in message["text"] or "CS" in message["text"]:
+        """
+        CS WATER 8:00 10:00 17:53
+        """
+        _, channel, *slots = message["text"].split(" ")
+
+        # update slots where slots are a list of str formatted [%h:%m]
+        sqlite_manager.update_time_slots(channel, slots)
+
     if "DRUNK" in message["text"]:
         return handle_drink_response(message)
 
@@ -144,7 +153,16 @@ def broadcast_water_reminder():
 
 
 def broadcast_joke():
-    pass
+    """
+      Sends a joke to the user to boost a mood.
+      """
+    # users = sqlite_manager.get_user_by_channel("JOKE")
+    # for user in users:
+    #     sms_manager.send_sms(
+    #         phone_number=user["phone_number"],
+    #         message=f"""Here is your dose of humor:
+    # {get_joke_from_api()}"""
+    #     )
 
 
 def broadcast_quote():
@@ -158,8 +176,7 @@ def broadcast_quote():
     for user in users:
         sms_manager.send_sms(
             phone_number=user["phone_number"],
-            message=f"""Hi, here's your daily dose of inspiration:
-{get_quote_from_api()}"""
+            message=get_quote_from_api()
         )
 
 
@@ -185,13 +202,13 @@ schedule.every().day.at("14:00").do(broadcast_water_reminder)
 
 # Schedules for jokes
 schedule.every().day.at("10:00").do(broadcast_joke)
-schedule.every().day.at("12:00").do(broadcast_joke)
+schedule.every().day.at("15:00").do(broadcast_joke)
+schedule.every().day.at("20:00").do(broadcast_joke)
 
 # Schedules for quotes
 schedule.every().day.at("09:30").do(broadcast_quote)
-schedule.every().day.at("16:00").do(broadcast_quote)
-# schedule.every().day.at("17:00").do(job2)
-
+schedule.every().day.at("16.30").do(broadcast_quote)
+schedule.every().day.at("20:00").do(broadcast_quote)
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)

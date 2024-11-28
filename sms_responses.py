@@ -7,9 +7,12 @@ Or just write joke or quote to instantly receive a joke or quote ;)"""
 BROADCAST_WATER_REMINDER_MESSAGE = """💧 Hey, hydration hero! 💧
 It's time for a water break! Remember: your body is 70% water, not coffee or soda.
 This is your friendly reminder: DRINK UP!💦
-Stay hydrated. Stay alive. Conquer the day! 🌟"""
+Stay hydrated. Stay alive. Conquer the day! 🌟
+To change your schedule reply with:
+CHANGESCHEDULE WATER hh:mm hh:mm hh:mm
+"""
 
-STATUS_MESSAGE = """📊 Here's your subscription status:
+STATUS_MESSAGE = lambda USER_SUBSCRIPTIONS: f"""📊 Here's your subscription status:
 - Subscribed to: {", ".join(USER_SUBSCRIPTIONS)}.
 - Not subscribed yet? Pick your favorite from: {", ".join(AVAILABLE_CHANNELS)}.
 Want to switch it up? Just send:
@@ -18,7 +21,6 @@ Stay awesome and stay connected! ✨
 Current status of {MASTERSCHOOL_API_TEAMNAME} services:
 Available channels: {", ".join(AVAILABLE_CHANNELS)}.
 You can also write JOKE or QUOTE to instantly receive a joke or a motivational quote.
-Also write GAME <team_name> to see the next fixture.
 """
 
 WELCOME_MESSAGE = f"""🎉 Welcome to {MASTERSCHOOL_API_TEAMNAME}! 🎉
@@ -29,5 +31,6 @@ Here's what we offer:
 ✨ JOKE: Get 3 daily doses of hilarity to keep the stress at bay!
 ✨ QUOTE: 3 inspiring quotes a day to keep you motivated and unstoppable.
 ✨ WATER: A reminder to hydrate and refresh yourself.
+Also write GAME <team_name> to see the next fixture.
 Don't wait—join a service now and make your day awesome! 😊
 """

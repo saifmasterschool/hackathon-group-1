@@ -1,18 +1,14 @@
 import threading
 import time
 
-import schedule
-
-from task_scheduler import TaskScheduler
-
-from config import MESSAGE_FETCH_INTERVAL, KEYWORD_JOIN_CHANNEL, KEYWORD_LEAVE_CHANNEL
+from config import MESSAGE_FETCH_INTERVAL, KEYWORD_JOIN_CHANNEL, KEYWORD_LEAVE_CHANNEL, AVAILABLE_CHANNELS
 from data_managers import sms_manager, sqlite_manager
 from database.extension import Base, engine
 from database.init import init_database
 from external_api import get_quote_from_api, get_joke_from_api, get_next_match
-from handlers import join_channel, subscribe_team, unsubscribe_team, status_response, leave_channel, \
-    handle_drink_response
-from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE, DEFAULT_MESSAGE
+import handlers
+from sms_responses import DEFAULT_MESSAGE
+from task_scheduler import TaskScheduler, setup_scheduler, individual_message, schedule_dispatcher
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
 
@@ -71,32 +67,27 @@ def handle_message(message):
     Creates user-entries in the database to track channel subscriptions.
     :param message: The message received from the Masterschool SMS API.
     """
+    print("MESSAGE RECEIVED:", message["text"], "from", message["sender"])
     if "SUBSCRIBE" in message["text"]:
-        return subscribe_team(message)
+        return handlers.subscribe_team(message)
 
     if "UNSUBSCRIBE" in message["text"]:
-        return unsubscribe_team(message)
+        return handlers.unsubscribe_team(message)
 
     if "STATUS" in message["text"]:
-        return status_response(message)
+        return handlers.status_response(message)
 
     if KEYWORD_JOIN_CHANNEL in message["text"]:
-        return join_channel(message)
+        return handlers.join_channel(message)
 
     if KEYWORD_LEAVE_CHANNEL in message["text"]:
-        return leave_channel(message)
+        return handlers.leave_channel(message)
 
     if "CHANGESCHEDULE" in message["text"] or "CS" in message["text"]:
-        """
-        CS WATER 8:00 10:00 17:53
-        """
-        _, channel, *slots = message["text"].split(" ")
-
-        # update slots where slots are a list of str formatted [%h:%m]
-        sqlite_manager.update_time_slots(channel, slots)
+        return handlers.change_scheduler(message, taskScheduler)
 
     if "DRUNK" in message["text"]:
-        return handle_drink_response(message)
+        return handlers.handle_drink_response(message)
 
     if "joke" in message["text"].lower():
         print(f"Sending joke to {message["sender"]}")
@@ -132,121 +123,17 @@ def handle_message(message):
     )
 
 
-def broadcast_water_reminder():
-    """
-    Sends a sms to remind people to drink water.
-    """
-
-    # Fetch all subscribed users that need to be reminded to drink
-    users = sqlite_manager.get_users_by_channel("WATER")
-
-    for user in users:
-        sms_manager.send_sms(
-            phone_number=user["phone_number"],
-            message=BROADCAST_WATER_REMINDER_MESSAGE
-        )
-
-
-def broadcast_joke():
-    """
-      Sends a joke to the user to boost a mood.
-      """
-    # users = sqlite_manager.get_user_by_channel("JOKE")
-    # for user in users:
-    #     sms_manager.send_sms(
-    #         phone_number=user["phone_number"],
-    #         message=f"""Here is your dose of humor:
-    # {get_joke_from_api()}"""
-    #     )
-
-
-def broadcast_quote():
-    """
-    Sends an SMS to subscribed users with a daily quote
-    """
-
-    # Fetch all subscribed users who need to receive quotes
-    users = sqlite_manager.get_users_by_channel("QUOTE")
-
-    for user in users:
-        sms_manager.send_sms(
-            phone_number=user["phone_number"],
-            message=get_quote_from_api()
-        )
-
-
-def individual_message(phone_number, message):
-    return sms_manager.send_sms(
-        phone_number,
-        message
-    )
-
-
-schedule_dispatcher = {
-    "WATER": lambda phone_number: individual_message(
-        phone_number,
-        BROADCAST_WATER_REMINDER_MESSAGE
-    ),
-    "JOKE": lambda phone_number: individual_message(
-        phone_number,
-        get_joke_from_api()
-    ),
-    "QUOTE": lambda phone_number: individual_message(
-        phone_number,
-        get_quote_from_api()
-    ),
-}
-
-
-def setup_schedulers():
-    # Fetches all custom schedules
-    custom_schedules = sqlite_manager.get_custom_schedules()
-
-    # Loop over the schedules
-    for custom_schedule in custom_schedules:
-        channel = custom_schedule.channel.channel_name
-        phone_number = custom_schedule.user.phone_number
-        for slot in custom_schedule.schedule.split(" "):
-            taskScheduler.add_task(
-                slot,
-                lambda _: schedule_dispatcher[channel](phone_number),
-                channel,
-                phone_number
-            )
-
-
-# Schedules for drinking water
-schedule.every().day.at("08:00").do(broadcast_water_reminder)
-schedule.every().day.at("10:00").do(broadcast_water_reminder)
-schedule.every().day.at("12:00").do(broadcast_water_reminder)
-schedule.every().day.at("14:00").do(broadcast_water_reminder)
-
-# Schedules for jokes
-schedule.every().day.at("10:00").do(broadcast_joke)
-schedule.every().day.at("15:00").do(broadcast_joke)
-schedule.every().day.at("20:00").do(broadcast_joke)
-
-# Schedules for quotes
-schedule.every().day.at("09:30").do(broadcast_quote)
-schedule.every().day.at("16:30").do(broadcast_quote)
-schedule.every().day.at("20:00").do(broadcast_quote)
-
-
-def print_me():
-    print("HELLO")
-
-
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
 
+    # Init database and taskScheduler
     init_database()
-    setup_schedulers()
+    setup_scheduler(taskScheduler)
 
     # Put both loops of different threads since both use time.sleep and would otherwise cancel each other out.
     thread1 = threading.Thread(target=start_message_loop)
-    # thread2 = threading.Thread(target=start_scheduler)
     thread2 = threading.Thread(target=taskScheduler.run_pending)
 
     # Start the threads.
-    # thread1.start()
+    thread1.start()
     thread2.start()

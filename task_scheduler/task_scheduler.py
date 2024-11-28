@@ -7,7 +7,10 @@ class TaskScheduler:
         self.tasks = {}
 
     def add_task(self, time_str, task_func, channel, phone_number):
-        task_id = f"{phone_number}_{channel}"
+        if not time_str:
+            return
+
+        task_id = f"{phone_number}_{channel}_{time_str}"
         task = schedule.every().day.at(time_str).do(task_func)
 
         self.tasks[task_id] = task

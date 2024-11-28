@@ -56,7 +56,7 @@ def get_last_message_timestamp() -> datetime:
     if last_message:
         return last_message.created_at
     else:
-        date = datetime.now() - timedelta(days=5)
+        date = datetime.now() - timedelta(seconds=30)
         return date
 
 
@@ -133,6 +133,47 @@ def get_custom_schedules():
         ).all()
 
         return query
+    finally:
+        session.close()
+
+
+def update_user_schedule(phone_number: int, channel_name: str, time_slots: list[str]) -> str:
+    """
+    Updates the user's schedule for a specific channel.
+    :param phone_number: The phone number of the user.
+    :param channel_name: The name of the channel to update.
+    :param time_slots: A list of time slots (in HH:MM format) for the schedule.
+    """
+    session = Session()
+
+    try:
+        # get the channel id
+        channel_id = get_channel_id(channel_name).channel_id
+
+        # get all custom schedules for a user
+        custom_schedule = session.query(
+            CustomSchedule
+        ).filter(
+            CustomSchedule.phone_number == phone_number,
+            CustomSchedule.channel_id == channel_id
+        ).first()
+
+        if custom_schedule:
+            old_time_slots = custom_schedule.schedule
+
+            # update the slots
+            custom_schedule.schedule = " ".join(time_slots)
+        else:
+            old_time_slots = ""
+            session.add(CustomSchedule(
+                phone_number=phone_number,
+                channel_id=channel_id,
+                schedule=" ".join(time_slots)
+            ))
+
+        session.commit()
+
+        return old_time_slots
     finally:
         session.close()
 

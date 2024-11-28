@@ -20,8 +20,8 @@ def unsubscribe_team(message):
     else:
         # Handle failure in unregistration (e.g., user not found)
         sms_manager.send_sms(
-            phone_number = phone_number,
-            message = "We could not process your unsubscription request. Please try again later."
+            phone_number=phone_number,
+            message="We could not process your unsubscription request. Please try again later."
         )
         print(f"Failed to unsubscribe user {phone_number}. Response: {response}")
     

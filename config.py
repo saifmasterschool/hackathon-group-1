@@ -9,7 +9,7 @@ from os import path
 MASTERSCHOOL_API = "http://hackathons.masterschool.com:3030"
 MASTERSCHOOL_API_TEAMNAME = "DailyMoodBoost"
 
-MESSAGE_FETCH_INTERVAL = 20
+MESSAGE_FETCH_INTERVAL = 10
 
 basedir = path.abspath(path.dirname(__file__))
 SQLite_file = f'sqlite:///{path.join(basedir, "database", "dailyMoodBoost.sqlite")}'

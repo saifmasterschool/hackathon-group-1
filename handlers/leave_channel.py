@@ -54,6 +54,7 @@ def leave_channel(message):
         sqlite_manager.get_channel_id(channel).channel_id
     )
 
+    print(f"Replying to {phone_number} with unsubscribe info.")
     sms_manager.send_sms(
         phone_number,
         f"""You successfully unsubscribed from {channel}"""

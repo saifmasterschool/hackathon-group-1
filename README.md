@@ -1,4 +1,27 @@
-# DailyMoodBoost
+# 🌟 Welcome to DailyMoodBoost! 🌟
+Welcome to DailyMoodBoost, your personalized SMS service to stay motivated, entertained, and organized. Use the following commands to subscribe, customize, or stop services at your convenience. Explore our four fantastic features and make every day count!
+# Imstruction:
+1. WATER: Stay hydrated and refreshed.
+Subscribe: Send JOIN WATER to start receiving reminders to drink water.
+Customize Times: Use CS WATER <time1> <time2> <time3> to set your preferred reminder times (e.g., CS WATER 08:00 12:00 18:00).
+Leave the Service: Send LEAVE WATER to stop receiving reminders.
+
+3. JOKE: Add humor to your day.
+Subscribe: Send JOIN JOKE to start receiving 3 daily jokes.
+Customize Time: Use CS JOKE <time> to set the delivery time for your jokes (e.g., CS JOKE 15:00).
+Instant Joke: Send JOKE anytime for a quick laugh.
+
+5. QUOTE: Stay motivated and inspired.
+Subscribe: Send JOIN QUOTE to start receiving 3 daily inspirational quotes.
+Instant Quote: Send QUOTE anytime to receive an immediate quote.
+
+7. Match Scores: Never miss the latest sports updates.
+Get Scores: Send GAME <team name> to receive live updates about your favorite teams (e.g., GAME Hamburger SV).
+
+9. General Commands:
+Subscribe to All: Send SUBSCRIBE DailyMoodBoost to join all available services at once.
+View Status: Send STATUS to see the list of services you're currently subscribed to.
+Unsubscribe All: Send UNSUBSCRIBE DailyMoodBoost to leave all services.
 
 ## 📍 Overview
 
@@ -264,3 +287,5 @@ A versatile SMS notification system that integrates external APIs to provide eng
 - [ ] **`Task 4`**: Enhance error handling
 - [ ] **`Task 5`**: Add more advanced configuration options
 - [ ] **`Task 6`**: Implement comprehensive logging
+
+Enjoy the DailyMoodBoost experience! Stay hydrated, laugh more, get inspired, and never miss a match! 😊

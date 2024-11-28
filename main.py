@@ -172,7 +172,7 @@ schedule.every().day.at("14:00").do(broadcast_water_reminder)
 schedule.every().day.at("10:00").do(broadcast_joke)
 schedule.every().day.at("12:00").do(broadcast_joke)
 
-# Schedules for quotes
+# Schedules for quotes for the day
 schedule.every().day.at("09:30").do(broadcast_quote)
 schedule.every().day.at("16:00").do(broadcast_quote)
 # schedule.every().day.at("17:00").do(job2)

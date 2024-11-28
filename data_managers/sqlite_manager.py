@@ -1,8 +1,13 @@
 from datetime import datetime, timedelta
+from functools import cache
 from typing import Type
 
+from sqlalchemy.orm import joinedload
+
+from utils.decorators import with_session
+
 from database.extension import Session
-from schemas import Message, User
+from schemas import Message, User, Subscription, Channel
 
 
 def get_messages() -> list[Type[Message]]:
@@ -77,19 +82,17 @@ def add_message_to_log(received_message) -> Message:
         session.close()
 
 
-def add_user(phone_number: int, channels: list[str]) -> User:
+def add_user(phone_number: int) -> User:
     """
     Adds a new user to the database.
     :param phone_number: the phone number of the user.
-    :param channels: The channels the user is subscribed to.
     :return: The created user.
     """
     session = Session()
 
     try:
         user = User(
-            phone_number=phone_number,
-            channels=channels
+            phone_number=phone_number
         )
         session.add(user)
         session.commit()
@@ -106,9 +109,32 @@ def get_users() -> list[Type[User]]:
     session = Session()
 
     try:
-        return session.query(User).all()
+        return session.query(User).options(joinedload(User.channels), joinedload(User.custom_schedules)).all()
     finally:
         session.close()
+
+
+def get_subscriptions_of_user(phone_number):
+    session = Session()
+
+    try:
+        return session.query(Subscription).filter(Subscription.phone_number == phone_number).all()
+    finally:
+        session.close()
+
+
+@cache
+def get_channel_id(channel_name) -> Channel:
+    session = Session()
+
+    try:
+        return session.query(Channel).filter(Channel.channel_name == channel_name).first()
+    finally:
+        session.close()
+
+
+def add_completed_drinking(phone_number, receivedAt):
+    pass
 
 
 def get_user_by_phone_number(phone_number: int) -> User:
@@ -120,21 +146,37 @@ def get_user_by_phone_number(phone_number: int) -> User:
     session = Session()
 
     try:
-        return session.query(User).filter(User.phone_number == phone_number).first()
+        return session.query(
+            User
+        ).options(
+            joinedload(
+                User.channels
+            )
+        ).filter(
+            User.phone_number == phone_number
+        ).first()
     finally:
         session.close()
 
 
-def get_users_by_channel(channel: str) -> list[Type[User]]:
+def get_users_by_channel(channel_name: str) -> list[Type[User]]:
     """
     Returns all users who are subscribed to specified channel.
-    :param channel: The channel to filter by.
+    :param channel_name: The channel to filter by.
     :return: A list of all the users subscribed to that channel.
     """
     session = Session()
 
     try:
-        return session.query(User).filter(User.channels.contains(channel)).all()
+        channel_with_users = session.query(Channel).options(
+            joinedload(
+                Channel.users
+            )
+        ).filter(Channel.channel_name == channel_name).first()
+
+        if channel_with_users:
+            return channel_with_users.users
+        return []
     finally:
         session.close()
 
@@ -148,27 +190,56 @@ def get_channels_of_user(phone_number: int) -> list[str]:
     session = Session()
 
     try:
-        user = session.query(User).filter(User.phone_number == phone_number).first()
+        user = session.query(User).options(
+            joinedload(
+                User.channels
+            )
+        ).filter(User.phone_number == phone_number).first()
+
         if user:
-            return user["channels"]
+            return user.channels
         return []
     finally:
         session.close()
 
 
-def update_user_channels(phone_number: int, channels: list[str]) -> User:
+def add_subscription(phone_number: int, channel_id: int) -> User:
     """
     Updates the channels of a user.
     :param phone_number: The users phone number.
-    :param channels: A list of new channels
+    :param channel_id: The new channel_id
     :return: The updated user.
     """
     session = Session()
 
     try:
-        user = session.query(User).filter(User.phone_number == phone_number).one()
-        user.channels = channels
+        session.add(Subscription(
+            phone_number=phone_number,
+            channel_id=channel_id
+        ))
+
         session.commit()
-        return user
+
+        return session.query(User).options(
+            joinedload(
+                User.channels
+            )
+        ).filter(User.phone_number == phone_number).first()
+    finally:
+        session.close()
+
+
+def remove_subscription(phone_number, channel_id):
+    session = Session()
+
+    try:
+        subscription = session.query(Subscription).filter(
+            Subscription.phone_number == phone_number,
+            Subscription.channel_id == channel_id
+        ).first()
+
+        if subscription:
+            session.delete(subscription)
+            session.commit()
     finally:
         session.close()

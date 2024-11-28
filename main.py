@@ -1,4 +1,4 @@
-import threading
+import threading  # comment
 import time
 
 import schedule
@@ -6,10 +6,11 @@ import schedule
 from config import MESSAGE_FETCH_INTERVAL, KEYWORD_JOIN_CHANNEL, KEYWORD_LEAVE_CHANNEL
 from data_managers import sms_manager, sqlite_manager
 from database.extension import Base, engine
-from external_api.jokes import get_joke_from_api
-from external_api.quotes import get_quote_from_api
-from handlers import join_channel, subscribe_team, unsubscribe_team, status_response, leave_channel
-from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE
+from database.init import init_database
+from external_api import get_quote_from_api, get_joke_from_api, get_next_match
+from handlers import join_channel, subscribe_team, unsubscribe_team, status_response, leave_channel, \
+    handle_drink_response
+from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE, DEFAULT_MESSAGE
 from utils.information import print_worked_on_messages
 from utils.validation import validate_message
 
@@ -75,10 +76,22 @@ def handle_message(message):
         return status_response(message)
 
     if KEYWORD_JOIN_CHANNEL in message["text"]:
-        return join_channel(message, sms_manager, sqlite_manager)
+        return join_channel(message)
 
     if KEYWORD_LEAVE_CHANNEL in message["text"]:
         return leave_channel(message)
+
+    if "CHANGESCHEDULE" in message["text"] or "CS" in message["text"]:
+        """
+        CS WATER 8:00 10:00 17:53
+        """
+        _, channel, *slots = message["text"].split(" ")
+
+        # update slots where slots are a list of str formatted [%h:%m]
+        sqlite_manager.update_time_slots(channel, slots)
+
+    if "DRUNK" in message["text"]:
+        return handle_drink_response(message)
 
     if "joke" in message["text"].lower():
         print(f"Sending joke to {message["sender"]}")
@@ -86,6 +99,18 @@ def handle_message(message):
             message.get("sender"),
             get_joke_from_api(),
             "Daily Joke from DailyMoodBoost"
+        )
+
+    if "GAME" in message["text"]:
+        _, *team_name = message["text"].split(" ")
+        team_name = " ".join(team_name)
+        next_match = get_next_match(team_name)
+
+        print("next match", next_match)
+
+        return sms_manager.send_sms(
+            message["sender"],
+            next_match
         )
 
     if "quote" in message["text"].lower():
@@ -98,9 +123,7 @@ def handle_message(message):
 
     return sms_manager.send_sms(
         phone_number=message["sender"],
-        message=f"""Your message could not be recognised.
-Use keywords SUBSCRIBE, UNSUBSCRIBE, STATUS, {KEYWORD_JOIN_CHANNEL} or {KEYWORD_LEAVE_CHANNEL}.
-Or just write joke or quote to instantly receive a joke or quote ;)"""
+        message=DEFAULT_MESSAGE
     )
 
 
@@ -130,7 +153,16 @@ def broadcast_water_reminder():
 
 
 def broadcast_joke():
-    pass
+    """
+      Sends a joke to the user to boost a mood.
+      """
+    # users = sqlite_manager.get_user_by_channel("JOKE")
+    # for user in users:
+    #     sms_manager.send_sms(
+    #         phone_number=user["phone_number"],
+    #         message=f"""Here is your dose of humor:
+    # {get_joke_from_api()}"""
+    #     )
 
 
 def broadcast_quote():
@@ -144,19 +176,19 @@ def broadcast_quote():
     for user in users:
         sms_manager.send_sms(
             phone_number=user["phone_number"],
-            message=f"""Hi, here's your daily dose of inspiration:
-{get_quote_from_api()}"""
+            message=get_quote_from_api()
         )
 
 
 def setup_schedulers():
     users = sqlite_manager.get_users()
-    print("users", users)
+    for user in users:
+        print(f"channels for {user.phone_number}", user.channels)
 
     users_with_custom_schedule = [
         user
         for user in users
-        if user["custom_schedules"]
+        if user.custom_schedules
     ]
 
     print("users_with_custom_schedule", users_with_custom_schedule)
@@ -170,17 +202,18 @@ schedule.every().day.at("14:00").do(broadcast_water_reminder)
 
 # Schedules for jokes
 schedule.every().day.at("10:00").do(broadcast_joke)
-schedule.every().day.at("12:00").do(broadcast_joke)
+schedule.every().day.at("15:00").do(broadcast_joke)
+schedule.every().day.at("20:00").do(broadcast_joke)
 
 # Schedules for quotes for the day
 schedule.every().day.at("09:30").do(broadcast_quote)
-schedule.every().day.at("16:00").do(broadcast_quote)
-# schedule.every().day.at("17:00").do(job2)
-
+schedule.every().day.at("16.30").do(broadcast_quote)
+schedule.every().day.at("20:00").do(broadcast_quote)
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
 
+    init_database()
     setup_schedulers()
 
     # Put both loops of different threads since both use time.sleep and would otherwise cancel each other out.

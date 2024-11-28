@@ -8,8 +8,16 @@ Write JOKE to receive a joke instantly."""
 
 
 STATUS_MESSAGE = f"""
-
+Current status of {MASTERSCHOOL_API_TEAMNAME} services:
+Available channels: {", ".join(AVAILABLE_CHANNELS)}.
+You can also write JOKE or QUOTE to instantly receive a joke or a motivational quote.
 """
+
+
 
 BROADCAST_WATER_REMINDER_MESSAGE = """Hi, Please your water.
 Otherwise you'll surely die! You forget it three times already. Calling an ambulance."""
+
+BROADCAST_JOKE_MESSAGE = """Get daily doses of jokes to keep you stress free!"""
+
+BROADCAST_QUOTE_MESSAGE = """2 inspiring quotes a day to keep you motivated!"""

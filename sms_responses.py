@@ -13,24 +13,23 @@ CHANGESCHEDULE WATER hh:mm hh:mm hh:mm
 """
 
 STATUS_MESSAGE = lambda USER_SUBSCRIPTIONS: f"""📊 Here's your subscription status:
-- Subscribed to: {", ".join(USER_SUBSCRIPTIONS)}.
-- Not subscribed yet? Pick your favorite from: {", ".join(AVAILABLE_CHANNELS)}.
+- You subscribed to: {", ".join(USER_SUBSCRIPTIONS)}.
+- Not subscribed yet? Pick your favorite from channels: WATER, JOKE, QUOTE, MATCH.
 Want to switch it up? Just send:
-"{KEYWORD_JOIN_CHANNEL} <service>" or "STOP <service>" to unsubscribe.
+"JOIN WATER/ JOKE/ QUOTE or MATCH" or "LEAVE <service>" to unsubscribe.
 Stay awesome and stay connected! ✨
-Current status of {MASTERSCHOOL_API_TEAMNAME} services:
-Available channels: {", ".join(AVAILABLE_CHANNELS)}.
+Current status of DailyMoodBoost services:
 You can also write JOKE or QUOTE to instantly receive a joke or a motivational quote.
 """
 
-WELCOME_MESSAGE = f"""🎉 Welcome to {MASTERSCHOOL_API_TEAMNAME}! 🎉
+WELCOME_MESSAGE = f"""🎉 Welcome to DailyMoodBoost! 🎉
 We've got some amazing services to brighten your day! Here's how you can join the fun:
-👉 To subscribe, just send: "{KEYWORD_JOIN_CHANNEL} <service>".
-For example: "{KEYWORD_JOIN_CHANNEL} {AVAILABLE_CHANNELS[0]}".
+👉 To subscribe, just send: JOIN WATER/ JOKE/ QUOTE or MATCH.
+For example: "JOIN WATER".
 Here's what we offer:
 ✨ JOKE: Get 3 daily doses of hilarity to keep the stress at bay!
 ✨ QUOTE: 3 inspiring quotes a day to keep you motivated and unstoppable.
 ✨ WATER: A reminder to hydrate and refresh yourself.
 Also write GAME <team_name> to see the next fixture.
-Don't wait—join a service now and make your day awesome! 😊
+Don't wait — join a service now and make your day awesome! 😊
 """

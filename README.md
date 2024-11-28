@@ -21,7 +21,7 @@ A versatile SMS notification system that integrates external APIs to provide eng
     ├── database
     │   └── extension.py
     ├── external_api
-    │   ├── __init__.py
+    │   ├── __init__.py.py
     │   └── jokes.py
     ├── main.py
     ├── requirements.txt

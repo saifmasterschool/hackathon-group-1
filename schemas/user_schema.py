@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, DateTime, func
 from sqlalchemy.orm import relationship
 
-from database.extension import Base
+from schemas._base import BaseClass
 
 
-class User(Base):
+class User(BaseClass):
     __tablename__ = "users"
 
     def __repr__(self):
@@ -15,9 +15,9 @@ class User(Base):
 
     phone_number = Column(Integer, primary_key=True, nullable=False)
 
-    subscriptions = relationship('Subscription', back_populates='user')
-    channels = relationship('Channel', secondary='subscriptions', viewonly=True)
-    custom_schedules = relationship('CustomSchedule', back_populates='user')
+    subscriptions = relationship('Subscription', back_populates='user', lazy="joined")
+    channels = relationship('Channel', secondary='subscriptions', viewonly=True, lazy="joined")
+    custom_schedules = relationship('CustomSchedule', back_populates='user', lazy="joined")
 
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

@@ -2,9 +2,10 @@ from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import relationship
 
 from database.extension import Base
+from schemas._base import BaseClass
 
 
-class Channel(Base):
+class Channel(BaseClass):
     __tablename__ = 'channels'
 
     def __repr__(self):
@@ -17,6 +18,6 @@ class Channel(Base):
     channel_name = Column(String)
 
     # Relationship to Subscription
-    subscriptions = relationship('Subscription', back_populates='channel')
+    subscriptions = relationship('Subscription', back_populates='channel', lazy="joined")
     # Get users vie subscriptions
-    users = relationship('User', secondary='subscriptions', viewonly=True)
+    users = relationship('User', secondary='subscriptions', viewonly=True, lazy="joined")

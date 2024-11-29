@@ -23,6 +23,7 @@ Stay awesome and stay connected! ✨
 Current status of {MASTERSCHOOL_API_TEAMNAME} services:
 Available channels: {", ".join(AVAILABLE_CHANNELS)}.
 You can also write JOKE or QUOTE to instantly receive a joke or a motivational quote.
+Or send GAME <team> to get the date of the next game fixture of your favorite team.
 """
 
 

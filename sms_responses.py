@@ -12,8 +12,10 @@ To change your schedule reply with:
 CHANGESCHEDULE WATER hh:mm hh:mm hh:mm
 """
 
-STATUS_MESSAGE = lambda USER_SUBSCRIPTIONS: f"""📊 Here's your subscription status:
-- Subscribed to: {", ".join(USER_SUBSCRIPTIONS)}.
+
+def STATUS_MESSAGE(user_subscriptions):
+    return f"""📊 Here's your subscription status:
+- Subscribed to: {", ".join(user_subscriptions)}.
 - Not subscribed yet? Pick your favorite from: {", ".join(AVAILABLE_CHANNELS)}.
 Want to switch it up? Just send:
 "{KEYWORD_JOIN_CHANNEL} <service>" or "STOP <service>" to unsubscribe.
@@ -21,7 +23,9 @@ Stay awesome and stay connected! ✨
 Current status of {MASTERSCHOOL_API_TEAMNAME} services:
 Available channels: {", ".join(AVAILABLE_CHANNELS)}.
 You can also write JOKE or QUOTE to instantly receive a joke or a motivational quote.
+You need to know when your favorite soccer team plays? Send GAME Hamburger SV and we'll tell you.
 """
+
 
 WELCOME_MESSAGE = f"""🎉 Welcome to {MASTERSCHOOL_API_TEAMNAME}! 🎉
 We've got some amazing services to brighten your day! Here's how you can join the fun:

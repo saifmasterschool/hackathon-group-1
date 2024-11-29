@@ -226,17 +226,22 @@ def get_users_by_channel(channel_name: str) -> list[Type[User]]:
         channel_with_users = session.query(Channel).options(
             joinedload(
                 Channel.users
+            ).joinedload(
+                User.custom_schedules
             )
-        ).filter(Channel.channel_name == channel_name).first()
+        ).filter(
+            Channel.channel_name == channel_name
+        ).first()
 
         if channel_with_users:
             return channel_with_users.users
+
         return []
     finally:
         session.close()
 
 
-def get_channels_of_user(phone_number: int) -> list[str]:
+def get_channels_of_user(phone_number: int) -> list[Type[Channel]]:
     """
     Returns all Channels a user is subscribed to.
     :param phone_number: The phone number of the user.

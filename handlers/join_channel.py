@@ -47,9 +47,15 @@ def join_channel(message):
         for channel in channels
     )
 
-    for channel_id in new_channel_ids.difference(user_channels_ids):
-        # Update the channels of the user.
-        sqlite_manager.add_subscription(phone_number=phone_number, channel_id=channel_id)
+    consolidated_channel_ids = new_channel_ids.difference(user_channels_ids)
 
-    print(f"Replying to {message["sender"]} with a successfully joined broadcast message")
-    sms_manager.send_sms(phone_number, f"Successfully joined {", ".join(channels)}. Welcome!")
+    if len(consolidated_channel_ids) > 0:
+        for channel_id in consolidated_channel_ids:
+            # Update the channels of the user.
+            sqlite_manager.add_subscription(phone_number=phone_number, channel_id=channel_id)
+
+        print(f"Replying to {message["sender"]} with a successfully joined broadcast message")
+        return sms_manager.send_sms(phone_number, f"Successfully joined {", ".join(channels)}. Welcome!")
+
+    print(f"Replying to {message["sender"]} that he already joined the channel(s)")
+    return sms_manager.send_sms(phone_number, f"You are already member of the channel(s) {", ".join(channels)}.")

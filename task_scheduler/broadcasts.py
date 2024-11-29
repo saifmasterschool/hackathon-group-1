@@ -3,48 +3,36 @@ from external_api import get_quote_from_api, get_joke_from_api
 from sms_responses import BROADCAST_WATER_REMINDER_MESSAGE
 
 
-def broadcast_water_reminder():
+def broadcast_message(channel: str, message: str):
     """
-    Sends a sms to remind people to drink water.
+    Sends a broadcast-message to a channel.
+    :param channel: The channel to send the broadcast-message to.
+    :param message: The message to send.
     """
+
+    print(f"Broadcast message to channel {channel}")
 
     # Fetch all subscribed users that need to be reminded to drink
-    users = sqlite_manager.get_users_by_channel("WATER")
+    broadcast_users = [
+        user
+        for user in sqlite_manager.get_users_by_channel(channel)
+        if not user.custom_schedules
+    ]
 
-    for user in users:
-        print("WATER MESSAGE TO: ", user.phone_number)
+    for user in broadcast_users:
+        print("Broadcast message sent to: ", user.phone_number)
         sms_manager.send_sms(
             phone_number=user["phone_number"],
-            message=BROADCAST_WATER_REMINDER_MESSAGE
+            message=message
         )
 
 
-def broadcast_joke():
-    """
-    Sends a joke to the user to boost a mood.
-    """
-    users = sqlite_manager.get_users_by_channel("JOKE")
-
-    for user in users:
-        sms_manager.send_sms(
-            phone_number=user["phone_number"],
-            message=get_joke_from_api()
-        )
-
-
-def broadcast_quote():
-    """
-    Sends an SMS to subscribed users with a daily quote
-    """
-
-    # Fetch all subscribed users who need to receive quotes
-    users = sqlite_manager.get_users_by_channel("QUOTE")
-
-    for user in users:
-        sms_manager.send_sms(
-            phone_number=user["phone_number"],
-            message=get_quote_from_api()
-        )
+def individual_message(phone_number, message):
+    print(f"Sending individual scheduled message to {phone_number}")
+    return sms_manager.send_sms(
+        phone_number,
+        message
+    )
 
 
 def setup_scheduler(task_scheduler):
@@ -65,19 +53,15 @@ def setup_scheduler(task_scheduler):
             )
 
     # Init default scheduled reminders
-    setup_broadcasts(task_scheduler)
+    setup_scheduler_for_default_broadcasts(task_scheduler)
 
 
-def generate_function(phone_number, channel):
-    return schedule_dispatcher[channel](phone_number)
-
-
-def setup_broadcasts(task_scheduler):
+def setup_scheduler_for_default_broadcasts(task_scheduler):
     # Schedules for drinking water
-    for time_slot in ["08:00", "10:00", "12:00", "14:00"]:
+    for time_slot in ["08:00", "10:00", "12:00", "14:00", "16:50"]:
         task_scheduler.add_task(
             time_slot,
-            broadcast_water_reminder,
+            lambda: broadcast_message("WATER", BROADCAST_WATER_REMINDER_MESSAGE),
             "WATER",
             "BROADCAST"
         )
@@ -86,7 +70,7 @@ def setup_broadcasts(task_scheduler):
     for time_slot in ["10:00", "15:00", "20:00"]:
         task_scheduler.add_task(
             time_slot,
-            broadcast_joke,
+            lambda: broadcast_message("JOKE", get_joke_from_api()),
             "JOKE",
             "BROADCAST"
         )
@@ -95,7 +79,7 @@ def setup_broadcasts(task_scheduler):
     for time_slot in ["09:30", "16:30", "20:00"]:
         task_scheduler.add_task(
             time_slot,
-            broadcast_quote,
+            lambda: broadcast_message("QUOTE", get_quote_from_api()),
             "QUOTE",
             "BROADCAST"
         )
@@ -115,10 +99,3 @@ schedule_dispatcher = {
         get_quote_from_api()
     ),
 }
-
-
-def individual_message(phone_number, message):
-    return sms_manager.send_sms(
-        phone_number,
-        message
-    )

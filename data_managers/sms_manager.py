@@ -36,10 +36,10 @@ def unregister_phone_number_from_team(phone_number, team):
     :param team: The team name to unregister from.
     :return: The MS API response.
     """
-    return requests.post(f'{MASTERSCHOOL_API}/team/registerNumber', json={
+    return requests.post(f'{MASTERSCHOOL_API}/team/unregisterNumber', json={
         "phoneNumber": phone_number,
         "teamName": team
-    }).json()
+    })
 
 
 def get_messages(team_name=MASTERSCHOOL_API_TEAMNAME):
